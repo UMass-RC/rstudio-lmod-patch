@@ -1,0 +1,42 @@
+#!/bin/bash
+
+echoerr() { echo "$@" 1>&2; }
+
+R_CMD="cat(.libPaths(), sep=':')"
+
+if [ -z $TMP ] && [ ! -z $R_SESSION_TMPDIR ]; then
+    export TMP=$R_SESSION_TMPDIR
+fi
+
+R_CMD_TMPFILE="$TMP/unity-module-r-libpaths-$$"
+
+if [ -z $1 ]; then
+    echoerr "which module would like you like to check the R libPaths for?"
+    exit 1
+fi	
+
+if [ -z $TMP ]; then
+    echoerr "tmp directory environment variable \$TMP is not defined!"
+    exit 1
+fi
+
+if [ ! -d $TMP ]; then
+    echoerr "tmp directory $TMP does not exist!"
+    exit 1
+fi
+
+module load $1 &> /dev/null
+if [ ! $? -eq 0 ]; then
+    echoerr "error loading module $1"
+    exit 1
+fi
+
+echo $R_CMD > $R_CMD_TMPFILE
+if [ ! $? -eq 0 ]; then
+    echoerr "error writing to file $R_CMD_TMPFILE"
+    exit 1
+fi
+
+unset R_HOME
+Rscript $R_CMD_TMPFILE
+rm $R_CMD_TMPFILE
