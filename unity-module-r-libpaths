@@ -4,16 +4,14 @@ echoerr() { echo "$@" 1>&2; }
 
 R_CMD="cat(.libPaths(), sep=':')"
 
-if [ -z $TMP ] && [ ! -z $R_SESSION_TMPDIR ]; then
-    export TMP=$R_SESSION_TMPDIR
-fi
-
-R_CMD_TMPFILE="$TMP/unity-module-r-libpaths-$$"
-
 if [ -z $1 ]; then
     echoerr "which module would like you like to check the R libPaths for?"
     exit 1
 fi	
+
+if [ -z $TMP ] && [ ! -z $R_SESSION_TMPDIR ]; then
+    export TMP=$R_SESSION_TMPDIR
+fi
 
 if [ -z $TMP ]; then
     echoerr "tmp directory environment variable \$TMP is not defined!"
@@ -30,6 +28,8 @@ if [ ! $? -eq 0 ]; then
     echoerr "error loading module $1"
     exit 1
 fi
+
+R_CMD_TMPFILE="$TMP/unity-module-r-libpaths-$$"
 
 echo $R_CMD > $R_CMD_TMPFILE
 if [ ! $? -eq 0 ]; then
